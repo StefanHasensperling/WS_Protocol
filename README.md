@@ -130,7 +130,9 @@ The ones that I encountered are:
 
 # Client example
 var WSclient = new WS_TcpClient("127.0.0.1", 5000) ;
+
 WSclient.Connect();
+
 var TagValueOfTagID30 = WSclient.ReadSingleValueAsInt(30);
 
 # Server example
