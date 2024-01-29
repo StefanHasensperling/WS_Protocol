@@ -72,6 +72,7 @@ There are the following message types:
 |5| Value | xxx
 |6| Value | xxx
 |7| Value MSB | xxx
+
 The value must be converted to either an 32 bit integer or real, depending on the Tag that was requested. Unfortunately you have to know what type each TagIds is.
 
 ## Write Single Value Request
@@ -97,6 +98,7 @@ The value must be converted to either an 32 bit integer or real, depending on th
 |5| Padding, always 0 |0x00
 |6| Padding, always 0 |0x00
 |7| Padding, always 0 |0x00
+
 The value must be converted to either an 32 bit integer or real, depending on the Tag that was requested. Unfortunately you have to know what type each TagIds is.
 
 # TagIds
