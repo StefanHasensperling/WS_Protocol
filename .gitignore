@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/WS_Protocol
+/WS_Protocol/bin/Debug
+/WS_Protocol/.vs
+/WS_Protocol/obj/Debug
+/WS_Server/bin/Debug
+/WS_Server/obj/Debug
+/WS_Test/.vs
+/WS_Test/bin/Debug
+/WS_Test/obj/Debug
+/WS_TestClient/bin/Debug
+/WS_TestClient/obj/Debug
