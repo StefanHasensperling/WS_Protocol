@@ -33,6 +33,10 @@ namespace WS_Protocol.Client
                 var SendStringBytes = Encoding.Unicode.GetBytes(value);
                 var SendByteLength = SendStringBytes.Length;
                 var MsgFramesStillToGo = (int)Math.Ceiling((double)SendByteLength / (double)WS_TcpClient.WS_MessgeFrameLength);
+
+                //this will be our buffer for all Message payload bytes
+                //we do it this way, because this way we ensure the bytes[] will always be an multiple of the WS Message frame length
+                //This basically takes care of the "Padding" of the last message that needs to be done for the last message to reach 8 byte of length
                 SendBuffer = new byte[MsgFramesStillToGo * WS_TcpClient.WS_MessgeFrameLength];
 
                 SendStringBytes.CopyTo(SendBuffer, 0);

@@ -8,7 +8,7 @@ using WS_Protocol.Server;
 namespace WS_Server
 {
     /// <summary>
-    /// You can Override Server Tags to implement custom Getter and Setter logic
+    /// You can Override Server Tags to implement custom Getter and Setter logic, in this case always get Random Numbers
     /// </summary>
     internal class RandomIntegerTag: ServerTag
     {

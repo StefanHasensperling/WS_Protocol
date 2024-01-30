@@ -2,9 +2,11 @@
 # WS Protocol Client and Server Library
 
 This is an library that implements the Weihenstephan Standards Protocol (WS Protocol in short). You can find more information here: [WS Protocol - Weihenstephan-Standards](https://www.weihenstephan-standards.com/technical-information/communication-interface/ws-protocol/)
-The Weihenstephaner Standards are used for data exchange between industrial beverage filling machines and Data Aquisition systems/Manufacturing Execution Systems.
+The Weihenstephaner Standards are used for data exchange between industrial beverage filling machines and Data Acquisition systems/Manufacturing Execution Systems.
 This standard is particulary popular in European Manufacturers for "Carbonated Soft drink" and "Beer" filling equipment. 
-The WS (Weihenstephaner Standard) defines certain "data points" (called Tags) that each machine can send to an requesting application, which holds production related data, so the connected application can calculate "Machine Efficiency", "Stand still times" and so on. It is basically meant to Standardize the data that each machine can hand out to MES applications to make it easier to integrate different manufacturers.  The "Tags" define data such as: "Machine Operating State", "Current Bottles per Hour", "Total Filled Bottles", "Total of Bad product", etc. 
+The WS (Weihenstephaner Standard) defines certain "data points" (called Tags) that each machine can send to an requesting application, which holds production related data, so the connected application can calculate "Machine Efficiency", 
+"Stand still times" and so on. It is basically meant to Standardize the data that each machine can hand out to MES applications to make it easier to integrate different manufacturers.  The "Tags" define data such as: "Machine Operating State", 
+"Current Bottles per Hour", "Total Filled Bottles", "Total of Bad product", etc. 
 The Weihenstephaner Standard also defines "Machine Profiles", which defines which machine type (Filling Machine, Shrink Wrapper, Palletizer, etc.) must have which Tags available. 
 
 # What is the WS Protocol?
@@ -16,7 +18,7 @@ The Protocol uses an TCP connection usually on Port 5000 or 50000. It implements
 The WS Protocol does not implement any Security mechanism whatsoever, it has no Encryption, no Authentication, no Request Throttling, Replay attack prevention, not even Message Integrity checks. 
 It relies entirely on the TCP Protocols built in message integrity mechanisms. 
 
-The data exchange works by sending and receiving "WS Message Frames". Each message frame is exactly 8 bytes long. So each data exchange happens in 8 byte quantums. 
+The data exchange works by sending and receiving "WS Message Frames". Each message frame is exactly 8 bytes long. So each data exchange happens in 8 byte quantum. 
 If an Request or response Message is shorter that 8 bytes, it is padded with 0, to always be of 8 bytes length.
 Some response messages are longer than 8 bytes, which means that you will receive multiple message frames. The first frame indicates the payload size. From that you have to calculate how many message frames (each 8 bytes long) you will need to receive. 
 The remainder of the last message most of the time contains "Garbage" or "0". The "Garbage" data comes from the simplistic implementation in the Plc's that run the "Server" of this protocol.
@@ -42,7 +44,7 @@ There are the following message types:
 |0x9999|WS_ERR_MEMORY_OVERFLOW |WS error code: Memory overflow
 |0xAAAA|WS_ERR_UNKNOWN_CMD |WS error code: Unknown command or Not supported
 |0xBBBB|WS_ERR_UNAUTHORIZED_ACCESS |WS error code: Unauthorized access. You tried to write an read only tag
-|0xCCCC|WS_ERR_SERVER_OVERLOAD |WS error code: Server overlaod
+|0xCCCC|WS_ERR_SERVER_OVERLOAD |WS error code: Server overload
 |0xDDDD|WS_ERR_IMPLAUSIBLE_ARGUMENT |WS error code: Implausible argument. The Tag does not exist
 |0xEEEE|WS_ERR_IMPLAUSIBLE_LIST |WS error code: Implausible list
 |0xFFFF|WS_ERR_ALIVE |WS error code: Memory overflow
@@ -107,6 +109,8 @@ Unfortunately there is no definitive list so you will have to poke around in the
 If you find more Tags, please make a pull request, and I will be happy to add them 
 
 # How did this Library come to be
+The motivation for this library was that i needed to get some production statistics from Beverage Packaging Machines, that did not support other protocols. Since there where no libraries for the WS Protocol, I made one. 
+
 This library was entirely created by "Reverse Engineering" of the communication Protocol between an existing filling machine and an MES application. 
 I do not have access to the "Weihenstephaner Standard", so everything was done by Packet Capturing and Reverse Engineering of Plc programs. 
 This means that this library "works" but is probably not fully "Weihenstephaner Standard" compliant. 
@@ -115,6 +119,13 @@ However, it allows applications to read and even write Tags from/to filling mach
 # Testing
 Currently testing is entirely done by running the Plc code of an filling machine in an "Virtual Soft PLC" (which is kind of an Virtual Machine for Programmable logic controllers), and connecting to this "Server". 
 Currently I do not have access to filling machines, so I can not test it under Live conditions. 
+
+# Current State of this Library
+The library currently works for the basic functionality, namely Reading and writing single values and also reading and writing string values.
+The more advanced functions such as "ReadList", "ReadConfig" etc. are currently not implemented, as i do not have an test-environment available that 
+implement these functions with which y could test this library against.
+
+The library basically "Works", although it is currently not thoroughly tested, and may have error in some corner-cases.
 
 # Manufacturers that usually implement the Weihenstephaner-Standards
 Usually the Standard is implemented by the "big" filling machine manufacturers from Europe. 
@@ -127,12 +138,49 @@ The ones that I encountered are:
  - Krones
 
 # Client example
+Please look into the WS_Test or WS_TestClient project
+
+```C#
 var WSclient = new WS_TcpClient("127.0.0.1", 5000) ;
 WSclient.Connect();
 var TagValueOfTagID30 = WSclient.ReadSingleValueAsInt(30);
+```
 
 # Server example
 Please look into the Server Sample project for information.
+The basic idea is that you subclass the ServerTag which gives you the ability to overload the getter and setter of the respective properties, and gives you the ability to inject your own logic when an value is read or written. 
+
+Here an example on how to set up an Server:
+```C#
+var WsServer = new WS_TcpServer(5000);
+
+//add some normal Read write Tags
+WsServer.Tags.Add(new ServerTag() { DataType = WS_Protocol.Ws_DataTypes.Integer, TagId = 30, IntValue = 130 });
+WsServer.Tags.Add(new ServerTag() { DataType = WS_Protocol.Ws_DataTypes.Integer, TagId = 190, IntValue = 300 });
+WsServer.Tags.Add(new ServerTag() { DataType = WS_Protocol.Ws_DataTypes.String, TagId = 30, StringValue = "test" });
+WsServer.Tags.Add(new ServerTag() { DataType = WS_Protocol.Ws_DataTypes.String, TagId = 31, StringValue = "" });
+
+//Add an custom Tag that always returns Random integer
+WsServer.Tags.Add(new RandomIntegerTag() { DataType = WS_Protocol.Ws_DataTypes.Integer, TagId = 200, IntValue = 300 });
+
+//Start up the server and accept incoming client requests
+WsServer.Start();
+```
+
+Here an example of an Server Tag:
+```C#
+/// <summary>
+/// You can Override Server Tags to implement custom Getter and Setter logic, in this case always get Random Numbers
+/// </summary>
+internal class RandomIntegerTag: ServerTag
+{
+	public override int IntValue 
+	{ 
+		get => new Random().Next(); 
+		set => base.IntValue=value; 
+	}
+}
+```
 
 # Todo
  - Implement ReadList and WriteList: I have no idea how they work

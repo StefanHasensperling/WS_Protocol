@@ -55,7 +55,11 @@ namespace WS_Protocol.Client
 
                 //Response Message Frame Layout of subsequent Frames
                 //0, 1, 2, 3, 4, 5, 6, 7               All string data in Unicode
-                var RetStringBytes = new byte[RetMsgFramesStillToGo *  WS_TcpClient.WS_MessgeFrameLength]; //this will be our buffer for all Message payload bytes
+
+                //this will be our buffer for all Message payload bytes
+                //we do it this way, because this way we ensure the bytes[] will always be an multiple of the WS Message frame length
+                //This basically takes care of the "Padding" of the last message that needs to be done for the last message to reach 8 byte of length
+                var RetStringBytes = new byte[RetMsgFramesStillToGo *  WS_TcpClient.WS_MessgeFrameLength]; 
 
                 for (int i = 0; i < RetMsgFramesStillToGo; i++) 
                 {
@@ -70,7 +74,7 @@ namespace WS_Protocol.Client
                 //it is important to note that due to the simplistic implementation of the server in the Plc, it may return 
                 //Garbage padding data after the length of the string, in the last message. We have to "Trim" these, otherwise we read garbage
                 //Response Message Frame Layout of Last Message Frame
-                //0, 1                           string data in unicode
+                //0, 1                           string data in Unicode
                 //2, 3, 4, 5, 6, 7               garbage data
                 return Encoding.Unicode.GetString(RetStringBytes, 0, (int)RetByteLengh);
             }

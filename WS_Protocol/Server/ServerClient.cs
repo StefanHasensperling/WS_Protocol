@@ -196,6 +196,10 @@ namespace WS_Protocol.Server
 
             //Calculate how many message frames we will receive
             var RespMsgFramesStillToGo = (int)Math.Ceiling((double)RetByteLengh / (double)WS_TcpClient.WS_MessgeFrameLength);
+
+            //this will be our buffer for all Message payload bytes
+            //we do it this way, because this way we ensure the bytes[] will always be an multiple of the WS Message frame length
+            //This basically takes care of the "Padding" of the last message that needs to be done for the last message to reach 8 byte of length
             var RespStringBytes = new byte[RespMsgFramesStillToGo *  WS_TcpClient.WS_MessgeFrameLength]; //this will be our buffer for all Message payload bytes
             StringBytes.CopyTo(RespStringBytes, 0);
 
@@ -248,6 +252,10 @@ namespace WS_Protocol.Server
             //Calculate how many message frames we will receive
             var RetByteLengh = StringLength *2; //The String Length is given in Unicode Characters, which take two byte each.
             var RetMsgFramesStillToGo = (int)Math.Ceiling((double)RetByteLengh / (double)WS_TcpClient.WS_MessgeFrameLength);
+
+            //this will be our buffer for all Message payload bytes
+            //we do it this way, because this way we ensure the bytes[] will always be an multiple of the WS Message frame length
+            //This basically takes care of the "Padding" of the last message that needs to be done for the last message to reach 8 byte of length
             var RetStringBytes = new byte[RetMsgFramesStillToGo *  WS_TcpClient.WS_MessgeFrameLength]; //this will be our buffer for all Message payload bytes
 
             //Response Message Frame Layout of subsequent Frames

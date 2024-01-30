@@ -11,19 +11,40 @@ using System.Collections.Concurrent;
 
 namespace WS_Protocol.Server
 {
+    /// <summary>
+    /// Represents an Weihenstephan Standard Protocol TCP server
+    /// </summary>
     public class WS_TcpServer
     {
+        /// <summary>
+        /// An collection of all available tags on the server. these tag hold the configuration of the tags itself, and also their value
+        /// </summary>
         public ConcurrentBag<ServerTag> Tags = new ConcurrentBag<ServerTag>();
+
+        /// <summary>
+        /// the port the server should be listening to. usually it is 5000 or 50000
+        /// </summary>
         public int Port { get; }
         private TcpListener TcpListener;
 
-        internal List<ServerClient> Clients =  new List<ServerClient>(); 
+        /// <summary>
+        /// an internal list of connected clients
+        /// </summary>
+        internal List<ServerClient> Clients =  new List<ServerClient>();
 
+        /// <summary>
+        /// Creates an new Weihenstephan Standard Protocol TCP server.
+        /// The server always listens to all IP Interfaces
+        /// </summary>
+        /// <param name="port">The port the server is listening on</param>
         public WS_TcpServer(int port)
         {  
             Port = port; 
         }
 
+        /// <summary>
+        /// Start the server. This is a blocking call
+        /// </summary>
         public void Start()
         {
             TcpListener = new TcpListener(IPAddress.Any, Port);
@@ -44,6 +65,11 @@ namespace WS_Protocol.Server
 
         }
 
+        /// <summary>
+        /// Searches through all configured tags, and returns the first one that matches the TagID
+        /// </summary>
+        /// <param name="TagId">The TagId to search for</param>
+        /// <returns></returns>
         public ServerTag FindTagByTagId(uint TagId)
         {
             return Tags.Where((a)=>a.TagId == TagId).FirstOrDefault();
