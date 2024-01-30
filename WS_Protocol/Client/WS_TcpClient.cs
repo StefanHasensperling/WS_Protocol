@@ -272,6 +272,93 @@ namespace WS_Protocol.Client
             WriteSingleStringMessage.Execute(this, TagId, Value);
         }
 
+        #region Async
+        /// <summary>
+        /// Connect to the Weihenstephaner Standard Protocol Server
+        /// </summary>
+        /// <exception cref="TimeoutException">is Thrown if the client could not connect to the server</exception>
+        public Task ConnectAsync()
+        {
+            return Task.Run(Connect);
+        }
+
+        /// <summary>
+        /// Disconnect from the Server
+        /// </summary>
+        public Task DisconnectAsync()
+        {
+            return Task.Run(Disconnect);
+        }
+
+        /// <summary>
+        /// Checks if the server is still alive and responding. otherwise does no action on the server, other than make him respond
+        /// </summary>
+        public Task NoOpAsync()
+        {
+            return Task.Run(() => { NoOp(); });
+        }
+
+        /// <summary>
+        /// Reads an single Value from the server as an Integer number. 
+        /// </summary>
+        /// <param name="TagId">The TagID of the data to read. Please check "WS_TagNumbers.xls" for some known TagIds</param>
+        /// <returns>The value of the requested TagId</returns>
+        public Task<int> ReadSingleValueAsIntAsync(uint TagId)
+        {
+            return Task.Run(() => { return ReadSingleValueAsInt(TagId); });
+        }
+
+        /// <summary>
+        /// Reads an single Value from the server as an Floating point number. 
+        /// </summary>
+        /// <param name="TagId">The TagID of the data to read. Please check "WS_TagNumbers.xls" for some known TagIds</param>
+        /// <returns>The value of the requested TagId</returns>
+        public Task<float> ReadSingleValueAsRealAsync(uint TagId)
+        {
+            return Task.Run(() => { return ReadSingleValueAsReal(TagId); });
+        }
+
+        /// <summary>
+        /// Reads an single Value from the server as an String. 
+        /// </summary>
+        /// <param name="TagId">The TagID of the data to read. Please check "WS_TagNumbers.xls" for some known TagIds</param>
+        /// <returns>The value of the requested TagId</returns>
+        public Task<string> ReadSingleStringAsync(uint TagId)
+        {
+            return Task.Run(() => { return ReadSingleString(TagId); });
+        }
+
+        /// <summary>
+        /// Writes an single Value to the server as an Integer number. 
+        /// </summary>
+        /// <param name="TagId">The TagID of the data to write. Please check "WS_TagNumbers.xls" for some known TagIds</param>
+        /// <param name="Value">The number to write to the TagId</param>
+        public Task WriteSingleValueAsync(uint TagId, int Value)
+        {
+            return Task.Run(() => { WriteSingleValue(TagId, Value); });
+        }
+
+        /// <summary>
+        /// Writes an single Value to the server as an Floating point number. 
+        /// </summary>
+        /// <param name="TagId">The TagID of the data to write. Please check "WS_TagNumbers.xls" for some known TagIds</param>
+        /// <param name="Value">The number to write to the TagId</param>
+        public Task WriteSingleValueAsync(uint TagId, double Value)
+        {
+            return Task.Run(() => { WriteSingleValue(TagId, Value); });
+        }
+
+        /// <summary>
+        /// Writes an single Value to the server as an String
+        /// </summary>
+        /// <param name="TagId">The TagID of the data to write. Please check "WS_TagNumbers.xls" for some known TagIds</param>
+        /// <param name="Value">The Text to write to the TagId</param>
+        public Task WriteSingleStringAsync(uint TagId, string Value)
+        {
+            return Task.Run(() => { WriteSingleString(TagId, Value); });
+        }
+        #endregion
+
         #region HeartBeat
         /// <summary>
         /// If true the connection automatically sends periodic "NOp" messages that act as heart beat messages to check if the server is still alive
