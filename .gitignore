@@ -13,3 +13,8 @@
 /WS_Test/obj/Debug
 /WS_TestClient/bin/Debug
 /WS_TestClient/obj/Debug
+/.vs
+/WS_Protocol/obj/Release
+/WS_Server/obj/Release
+/WS_Test/obj/Release
+/WS_TestClient/obj/Release
