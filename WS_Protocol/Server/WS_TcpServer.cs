@@ -60,10 +60,28 @@ namespace WS_Protocol.Server
             }
             catch (Exception) 
             {
-                throw; //so we can make an breakpoint here, if we need to.
+                //throw; //so we can make an breakpoint here, if we need to.
             }
-
+            finally
+            {
+                Close();
+            }
         }
+
+        /// <summary>
+        /// Closes the Server
+        /// </summary>
+        public void Close() 
+        {
+            TcpListener.Stop();
+        }
+
+        private void DisconnectAllClients()
+        {
+            var ClientsToClose = new List<ServerClient>(Clients);
+            foreach (var Client in ClientsToClose) { Client.ServerDisconnect(); }
+        }
+
 
         /// <summary>
         /// Searches through all configured tags, and returns the first one that matches the TagID

@@ -13,8 +13,8 @@ namespace WS_Protocol.Server
 {
     internal class ServerClient
     {
-        public TcpClient Client;
-        public WS_TcpServer Server;
+        private TcpClient Client;
+        private WS_TcpServer Server;
 
         public ServerClient(TcpClient client, WS_TcpServer server)
         {
@@ -44,7 +44,7 @@ namespace WS_Protocol.Server
                     //the socket was closed
                     if (ReadBytes != 8) //Each WS message has exactly 8 Bytes, or multiple of 8
                     {
-                        Trace.WriteLine("Client disconnected");
+                        ClientDisconnected();
                         return;
                     }
 
@@ -85,7 +85,7 @@ namespace WS_Protocol.Server
             catch (Exception ex)
             {
                 Trace.WriteLine(string.Format("Exception thrown: {0}", ex.Message));
-                Disconect();
+                ServerDisconnect();
             }
         }
 
@@ -389,7 +389,20 @@ namespace WS_Protocol.Server
             stream.Flush();
         }
 
-        private void Disconect()
+        private void ClientDisconnected()
+        {
+            Trace.WriteLine("Client disconnected");
+            Client.Close();
+            lock (Server.Clients)
+            {
+                Server.Clients.Remove(this);
+            }
+        }
+
+        /// <summary>
+        /// Closes the client connection and aborts the data exchange
+        /// </summary>
+        public void ServerDisconnect()
         {
             Trace.WriteLine("Server Side Client Disconnection");
 
@@ -399,6 +412,5 @@ namespace WS_Protocol.Server
                 Server.Clients.Remove(this);
             }
         }
-
     }
 }
