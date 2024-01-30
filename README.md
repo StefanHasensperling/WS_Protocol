@@ -74,6 +74,7 @@ There are the following message types:
 |5| Value | xxx
 |6| Value | xxx
 |7| Value MSB | xxx
+
 The value must be converted to either an 32 bit integer or real, depending on the Tag that was requested. Unfortunately you have to know what type each TagIds is.
 
 ## Write Single Value Request
@@ -99,6 +100,7 @@ The value must be converted to either an 32 bit integer or real, depending on th
 |5| Padding, always 0 |0x00
 |6| Padding, always 0 |0x00
 |7| Padding, always 0 |0x00
+
 The value must be converted to either an 32 bit integer or real, depending on the Tag that was requested. Unfortunately you have to know what type each TagIds is.
 
 # TagIds
@@ -142,7 +144,9 @@ Please look into the WS_Test or WS_TestClient project
 
 ```C#
 var WSclient = new WS_TcpClient("127.0.0.1", 5000) ;
+
 WSclient.Connect();
+
 var TagValueOfTagID30 = WSclient.ReadSingleValueAsInt(30);
 ```
 
