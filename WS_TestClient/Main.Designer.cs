@@ -47,8 +47,6 @@
             this.comboBoxCmd = new System.Windows.Forms.ComboBox();
             this.groupBoxResponse = new System.Windows.Forms.GroupBox();
             this.textBoxResponse = new System.Windows.Forms.TextBox();
-            this.backgroundWorkerRunCommand = new System.ComponentModel.BackgroundWorker();
-            this.backgroundWorkerConnect = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBoxConnection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPort)).BeginInit();
@@ -258,16 +256,6 @@
             this.textBoxResponse.Size = new System.Drawing.Size(553, 56);
             this.textBoxResponse.TabIndex = 7;
             // 
-            // backgroundWorkerRunCommand
-            // 
-            this.backgroundWorkerRunCommand.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerRunCommand_DoWork);
-            this.backgroundWorkerRunCommand.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerRunCommand_RunWorkerCompleted);
-            // 
-            // backgroundWorkerConnect
-            // 
-            this.backgroundWorkerConnect.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerConnect_DoWork);
-            this.backgroundWorkerConnect.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerConnect_RunWorkerCompleted);
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -312,8 +300,6 @@
         private System.Windows.Forms.ComboBox comboBoxDataType;
         private System.Windows.Forms.TextBox textBoxResponse;
         private System.Windows.Forms.Button buttonExecute;
-        private System.ComponentModel.BackgroundWorker backgroundWorkerRunCommand;
-        private System.ComponentModel.BackgroundWorker backgroundWorkerConnect;
     }
 }
 

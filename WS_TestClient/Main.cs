@@ -30,23 +30,33 @@ namespace WS_TestClient
             groupBoxRequest.Enabled = false;
         }
 
-        private void buttonConnect_Click(object sender, EventArgs e)
+        private async void buttonConnect_Click(object sender, EventArgs e)
         {
-            Client = new WS_Protocol.Client.WS_TcpClient(textBoxIP.Text, (int)numericUpDownPort.Value);
-            Client.ConnectionBroken += (a, b) => 
+            try
             {
-                this.BeginInvoke(new Action(() => 
+                Client = new WS_Protocol.Client.WS_TcpClient(textBoxIP.Text, (int)numericUpDownPort.Value);
+                Client.ConnectionBroken += (a, b) =>
                 {
-                    MessageBox.Show("Connection was interrupted with Client");
-                    Client?.Disconnect();
-                    buttonConnect.Enabled = true;
-                    groupBoxRequest.Enabled = false;
-                })); 
-            };
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        MessageBox.Show("Connection was interrupted with Client");
+                        Client?.Disconnect();
+                        buttonConnect.Enabled = true;
+                        groupBoxRequest.Enabled = false;
+                    }));
+                };
 
-            buttonConnect.Enabled = false;
-            backgroundWorkerConnect.RunWorkerAsync();
+                buttonConnect.Enabled = false;
+                await Client.ConnectAsync();
+                groupBoxRequest.Enabled = true;
 
+            }
+            catch (Exception ex)
+            {
+                Client = null;
+                buttonConnect.Enabled = true;
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void buttonDisconnect_Click(object sender, EventArgs e)
@@ -63,95 +73,62 @@ namespace WS_TestClient
             }
         }
 
-        private void buttonExecute_Click(object sender, EventArgs e)
+        private async void buttonExecute_Click(object sender, EventArgs e)
         {          
-            backgroundWorkerRunCommand.RunWorkerAsync(new Tuple<string, string, string, string>(comboBoxCmd.SelectedItem.ToString(), 
-                                                                                                comboBoxDataType.SelectedItem.ToString(),
-                                                                                                textBoxTagId.Text,
-                                                                                                textBoxTagValue.Text)) ;
-        }
+            var Command = comboBoxCmd.SelectedItem.ToString();
+            var DataType = comboBoxDataType.SelectedItem.ToString();
+            var TagID = textBoxTagId.Text;
+            var TagValue = textBoxTagValue.Text;
 
-        private void backgroundWorkerConnect_DoWork(object sender, DoWorkEventArgs e)
-        {
-            Client.Connect();
-        }
-
-        private void backgroundWorkerConnect_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Error != null)
+            try
             {
-                Client = null;
-                buttonConnect.Enabled = true;
-                MessageBox.Show(e.Error.Message);
+                switch (Command)
+                {
+                    case "Read Single Value":
+                        switch (DataType)
+                        {
+                            case "Integer":
+                                textBoxResponse.Text = (await Client.ReadSingleValueAsIntAsync(uint.Parse(TagID))).ToString();
+                                break;
+                            case "Floating Point":
+                                textBoxResponse.Text = (await Client.ReadSingleValueAsRealAsync(uint.Parse(TagID))).ToString();
+                                break;
+                            default:
+                                throw new ApplicationException("Invalid data type selected");
+                        }
+                        break;
+
+                    case "Read String Value":
+                        textBoxResponse.Text = (await Client.ReadSingleStringAsync(uint.Parse(TagID))).ToString();
+                        break;
+
+                    case "Write Single Value":
+                        switch (DataType)
+                        {
+                            case "Integer":
+                                await Client.WriteSingleValueAsync(uint.Parse(TagID), int.Parse(TagValue));
+                                textBoxResponse.Text = "Value successfully written";
+                                break;
+                            case "Floating Point":
+                                await Client.WriteSingleValueAsync(uint.Parse(TagID), double.Parse(TagValue));
+                                textBoxResponse.Text = "Value successfully written";
+                                break;
+                            default:
+                                throw new ApplicationException("Invalid data type selected");
+                        }
+                        break;
+                    case "Write String Value":
+                        await Client.WriteSingleStringAsync(uint.Parse(TagID), TagValue);
+                        textBoxResponse.Text = "Value successfully written";
+                        break;
+
+                    default:
+                        throw new ApplicationException("Invalid Command Selected");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                groupBoxRequest.Enabled = true;
-            }
-        }
-
-        private void backgroundWorkerRunCommand_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var T = (Tuple<string, string, string, string>)e.Argument;
-            var Command = T.Item1;
-            var DataType = T.Item2;
-            var TagID = T.Item3;
-            var TagValue = T.Item4;
-
-            switch (Command)
-            {
-               case "Read Single Value":
-                   switch (DataType) 
-                    {
-                        case "Integer":
-                            e.Result = Client.ReadSingleValueAsInt(uint.Parse(TagID));
-                            break;
-                        case "Floating Point":
-                            e.Result = Client.ReadSingleValueAsReal(uint.Parse(TagID));
-                            break;
-                        default:
-                            throw new ApplicationException("Invalid data type selected");
-                    }
-                    break;
-
-                case "Read String Value":
-                    e.Result = Client.ReadSingleString(uint.Parse(TagID));
-                    break;
-
-                case "Write Single Value":
-                    switch (DataType)
-                    {
-                        case "Integer":
-                            Client.WriteSingleValue(uint.Parse(TagID), int.Parse(TagValue));
-                            e.Result = "Value successfully written";
-                            break;
-                        case "Floating Point":
-                            Client.WriteSingleValue(uint.Parse(TagID), double.Parse(TagValue));
-                            e.Result = "Value successfully written";
-                            break;
-                        default:
-                            throw new ApplicationException("Invalid data type selected");
-                    }
-                    break;
-                case "Write String Value":
-                    Client.WriteSingleString(uint.Parse(TagID), TagValue);
-                    e.Result = "Value successfully written";
-                    break;
-
-                default:
-                    throw new ApplicationException("Invalid Command Selected");
-            }
-        }
-
-        private void backgroundWorkerRunCommand_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Error  != null)
-            {
-                textBoxResponse.Text = e.Error.Message; 
-            }
-            else
-            {
-                textBoxResponse.Text = e.Result.ToString();
+                textBoxResponse.Text = ex.Message;
             }
         }
     }
